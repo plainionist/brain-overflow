@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "brain-overflow",
+  "version": "0.1.0",
+  "identifier": "com.brain-overflow.app",
+  "build": {
+    "beforeDevCommand": "dotnet build src-dotnet/BrainOverflow.TauriPlugIn/BrainOverflow.TauriPlugIn.csproj && pnpm dev",
+    "beforeBuildCommand": "dotnet publish -c Release src-dotnet/BrainOverflow.TauriPlugIn/BrainOverflow.TauriPlugIn.csproj && pnpm build",
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "brain-overflow",
+        "width": 800,
+        "height": 600
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}
