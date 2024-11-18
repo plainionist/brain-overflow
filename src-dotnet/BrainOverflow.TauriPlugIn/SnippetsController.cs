@@ -19,22 +19,12 @@ public class SearchResult
     public Snippet? Snippet { get; set; }
 }
 
-public class SnippetsController
+public class SnippetsController(Store store)
 {
-    private static readonly string Store = Path.Combine(GetFolderPath(SpecialFolder.Personal), "BrainOverflow");
-
-    public SnippetsController()
-    {
-        if (!Directory.Exists(Store))
-        {
-            Directory.CreateDirectory(Store);
-        }
-    }
-
     public void Save(Snippet snippet)
     {
         var id = snippet.Id ?? Guid.NewGuid().ToString();
-        File.WriteAllText(Path.Combine(Store, id + ".md"), snippet.Text);
+        File.WriteAllText(Path.Combine(store.Root, id + ".md"), snippet.Text);
     }
 
     public IReadOnlyCollection<SearchResult> Search(SearchRequest request)
@@ -44,7 +34,7 @@ public class SnippetsController
             return [];
         }
 
-        return Directory.EnumerateFiles(Store, "*.md")
+        return Directory.EnumerateFiles(store.Root, "*.md")
             .Select(file => new Snippet
             {
                 Id = Path.GetFileNameWithoutExtension(file),
