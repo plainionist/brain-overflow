@@ -8,7 +8,7 @@ public class PlugIn : IPlugIn
     public void Initialize(IServiceCollection services)
     {
         services.AddSingleton<SnippetsController>();
-        services.AddSingleton<Store>();
+        services.AddSingleton<Repository>();
         services.AddSingleton<IHostedService, GitObserver>();
     }
 }

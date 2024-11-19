@@ -19,12 +19,12 @@ public class SearchResult
     public Snippet? Snippet { get; set; }
 }
 
-public class SnippetsController(Store store)
+public class SnippetsController(Repository repository)
 {
     public void Save(Snippet snippet)
     {
         var id = snippet.Id ?? Guid.NewGuid().ToString();
-        File.WriteAllText(Path.Combine(store.Root, id + ".md"), snippet.Text);
+        repository.Save(id, snippet.Text);
     }
 
     public IReadOnlyCollection<SearchResult> Search(SearchRequest request)
@@ -34,7 +34,7 @@ public class SnippetsController(Store store)
             return [];
         }
 
-        return Directory.EnumerateFiles(store.Root, "*.md")
+        return repository.Query()
             .Select(file => new Snippet
             {
                 Id = Path.GetFileNameWithoutExtension(file),
