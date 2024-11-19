@@ -25,13 +25,16 @@ public class GitObserver(IEventPublisher publisher, Store store) : IHostedServic
         while (await timer.WaitForNextTickAsync(cancellationToken))
         {
             var changes = GetChanges();
-            publisher.Publish("store-updates", changes);
+            if (changes.Any())
+            {
+                publisher.Publish("store-updates", changes);
+            }
         }
     }
 
     private IReadOnlyCollection<Change> GetChanges()
     {
-        Console.WriteLine($"{DateTime.Now}|Checking for changes ...");
+        Console.Write($"{DateTime.Now}|Checking for changes ...");
 
         ExecuteGitCommand("pull --rebase");
 
@@ -50,7 +53,7 @@ public class GitObserver(IEventPublisher publisher, Store store) : IHostedServic
 
         myKnownFiles = currentFiles;
 
-        Console.WriteLine($"... added = {addedFiles.Count}, modified = {modifiedFiles.Count}");
+        Console.WriteLine($"added: {addedFiles.Count}, modified: {modifiedFiles.Count}");
 
         return addedFiles.Concat(modifiedFiles).ToList();
 
@@ -84,7 +87,7 @@ public class GitObserver(IEventPublisher publisher, Store store) : IHostedServic
 
         return fileHashes;
     }
-    
+
     private string ExecuteGitCommand(string args)
     {
         using var process = new Process

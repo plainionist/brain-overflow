@@ -16,12 +16,23 @@
     <div v-else style="flex: 1">
       <textarea v-model="snippetText" class="snippet" />
     </div>
+
+    <div v-show="showUpdates" class="updates">
+      <table class="updates-table">
+        <tr v-for="update in updates" :key="update.path">
+          <td class="update-type">{{ update.changeType }}</td>
+          <td class="update-path">{{ update.path }}</td>
+        </tr>
+      </table>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { Api } from './api'
+import { listen } from '@tauri-apps/api/event';
+import { getCurrentWindow, LogicalSize } from '@tauri-apps/api/window'
 
 interface Snippet {
   id: string;
@@ -33,12 +44,19 @@ interface SearchResult {
   snippet: Snippet;
 }
 
+interface Change {
+  changeType: string;
+  path: string;
+}
+
 export default defineComponent({
   setup() {
     const searchQuery = ref<string>('');
     const snippetText = ref<string>('');
     const searchResults = ref<SearchResult[]>([]);
     let snippetId: string | null = null;
+    const updates = ref<Change[]>([]);
+    const showUpdates = ref(false);
 
     const onSearchInput = async () => {
       console.log('Searching for:', searchQuery.value);
@@ -74,7 +92,26 @@ export default defineComponent({
       searchQuery.value = '';
     };
 
-    return { searchQuery, snippetText, onSearchInput, onCreateNew, onSave, searchResults, onSearchResultSelected };
+    listen<string>('store-updates', async (event) => {
+      updates.value = JSON.parse(event.payload) as Change[];
+
+      console.log(`store-updates: ${updates.value.length}`);
+
+      showUpdates.value = true;
+
+      const window = getCurrentWindow();
+      const originalSize = await window.innerSize()
+      await window.setSize(new LogicalSize(1200, originalSize.height));
+
+      setTimeout(async () => {
+        showUpdates.value = false;
+        updates.value = [];
+        await window.setSize(originalSize);
+      }, 5000);
+
+    });
+
+    return { searchQuery, snippetText, onSearchInput, onCreateNew, onSave, searchResults, onSearchResultSelected, updates, showUpdates };
   },
 });
 </script>
@@ -119,5 +156,36 @@ body {
   font-size: 24px;
   font-weight: bold;
   font-family: 'Courier New', Courier, monospace;
+}
+
+.updates {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 400px;
+  height: calc(100% - 22px);
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  margin: 10px;
+  overflow-y: auto;
+}
+
+.updates-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.updates-table td {
+  padding: 5px 10px;
+}
+
+.update-type {
+  white-space: nowrap;
+  text-align: left;
+}
+
+.update-path {
+  text-align: left;
+  width: 100%;
 }
 </style>
