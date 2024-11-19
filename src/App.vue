@@ -101,7 +101,7 @@ export default defineComponent({
 
       const window = getCurrentWindow();
       const originalSize = await window.innerSize()
-      await window.setSize(new LogicalSize(1200, originalSize.height));
+      await window.setSize(new LogicalSize(900, originalSize.height));
 
       setTimeout(async () => {
         showUpdates.value = false;

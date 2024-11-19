@@ -27,7 +27,6 @@ public class GitObserver(IEventPublisher publisher, Repository repository) : IHo
     {
         Console.Write($"{DateTime.Now}|Checking for changes ...");
 
-        // local changes are known
         var knownFiles = GetFilesWithHashes();
 
         repository.Git.Execute("pull --rebase");
