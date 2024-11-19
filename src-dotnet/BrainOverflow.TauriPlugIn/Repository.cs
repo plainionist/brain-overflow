@@ -5,7 +5,8 @@ using static System.Environment;
 
 public class Repository
 {
-    private readonly string myRoot = Path.Combine(GetFolderPath(SpecialFolder.Personal), "BrainOverflow");
+    private readonly string myRoot = GetEnvironmentVariable("BRAINOVERFLOW_STORE")
+        ?? Path.Combine(GetFolderPath(SpecialFolder.Personal), "BrainOverflow");
 
     public Repository()
     {

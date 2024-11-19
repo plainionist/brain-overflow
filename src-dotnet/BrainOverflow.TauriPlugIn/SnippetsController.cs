@@ -1,7 +1,5 @@
 ﻿namespace BrainOverflow.TauriPlugIn;
 
-using static System.Environment;
-
 public class Snippet
 {
     public string? Id { get; set; }
